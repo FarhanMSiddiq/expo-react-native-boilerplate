@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   ImageBackground,
   Platform,
+  Modal,
+  StyleSheet,
 } from "react-native";
 import { useProducts } from "../../../hooks/products/useProducts";
 import { Product } from "../../../models/Product";
@@ -18,7 +20,6 @@ import {
   ScrollView,
 } from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Picker } from "@react-native-picker/picker";
 
 const ScrollViewsCustom = ({ children }: { children: React.ReactNode }) => {
   if (Platform.OS === "web") {
@@ -47,8 +48,32 @@ const ScrollViewsCustom = ({ children }: { children: React.ReactNode }) => {
 export default function Products() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [page, setPage] = useState<number>(1);
-  const [sortBy, setSortBy] = useState<string>("");
-  const [order, setOrder] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("title");
+  const [order, setOrder] = useState<string>("asc");
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentOptions, setCurrentOptions] = useState<string[]>([]);
+  const [currentTarget, setCurrentTarget] = useState<"sortBy" | "order">(
+    "sortBy"
+  );
+
+  const sortByOptions = ["title", "price", "rating"];
+  const orderOptions = ["asc", "desc"];
+
+  const openDropdown = (target: "sortBy" | "order") => {
+    setCurrentTarget(target);
+    setCurrentOptions(target === "sortBy" ? sortByOptions : orderOptions);
+    setModalVisible(true);
+  };
+
+  const handleSelect = (value: string) => {
+    if (currentTarget === "sortBy") {
+      setSortBy(value);
+    } else {
+      setOrder(value);
+    }
+    setModalVisible(false);
+  };
 
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const { products, loading, error, totalPages, refetchProducts } = useProducts(
@@ -85,101 +110,129 @@ export default function Products() {
   }, [sortBy, order]);
 
   return (
-    <GestureHandlerRootView className="flex-1">
-      <SafeAreaView className="flex-1 bg-white">
-        <ScrollViewsCustom>
-          <View className="flex-1 p-1">
-            <TextInput
-              value={searchQuery}
-              onChangeText={handleSearch}
-              placeholder="🔍 Search products"
-              className="border border-gray-300 p-2 mb-4 bg-white"
-            />
+    <View className="flex-1 p-5">
+      <TextInput
+        value={searchQuery}
+        onChangeText={handleSearch}
+        placeholder={"🔍 Search products"}
+        className="border border-gray-300 p-2 mb-4 bg-white text-black"
+      />
 
-            <View className="p-4 bg-blue-600 rounded-lg mb-4">
-              <Text className="text-lg font-semibold text-white mb-2">
-                Sort Options
-              </Text>
-              <View className="flex-row justify-between">
-                <View className="flex-1 mr-2">
-                  <Text className="text-sm text-white mb-1">Sort By</Text>
-                  <View className="bg-white rounded-md overflow-hidden">
-                    <Picker
-                      selectedValue={sortBy}
-                      onValueChange={(itemValue) => setSortBy(itemValue)}
-                      mode="dropdown"
-                      style={{ color: "black" }} // memastikan teks picker tetap terbaca di atas bg putih
-                    >
-                      <Picker.Item label="Title" value="title" />
-                      <Picker.Item label="Price" value="price" />
-                      <Picker.Item label="Rating" value="rating" />
-                    </Picker>
-                  </View>
-                </View>
-
-                <View className="flex-1 ml-2">
-                  <Text className="text-sm text-white mb-1">Order</Text>
-                  <View className="bg-white rounded-md overflow-hidden">
-                    <Picker
-                      selectedValue={order}
-                      onValueChange={(itemValue) => setOrder(itemValue)}
-                      mode="dropdown"
-                      style={{ color: "black" }}
-                    >
-                      <Picker.Item label="Ascending" value="asc" />
-                      <Picker.Item label="Descending" value="desc" />
-                    </Picker>
-                  </View>
-                </View>
-              </View>
-            </View>
-
-            {loading ? (
-              <ActivityIndicator size="large" color="#0000ff" />
-            ) : (
-              <FlatList
-                key={2}
-                data={products}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }: { item: Product }) => (
-                  <ProductGrid products={item} />
-                )}
-                numColumns={2}
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                scrollEnabled={false}
-              />
-            )}
-
-            {/* Pagination */}
-            <View className="flex-row justify-between items-center mt-4">
-              <TouchableOpacity
-                onPress={() => handlePagination("prev")}
-                disabled={page === 1}
-              >
-                <Ionicons
-                  name="arrow-back-circle"
-                  size={30}
-                  color={page === 1 ? "gray" : "blue"}
-                />
-              </TouchableOpacity>
-              <Text>
-                Page {page} of {totalPages}
-              </Text>
-              <TouchableOpacity
-                onPress={() => handlePagination("next")}
-                disabled={page === totalPages}
-              >
-                <Ionicons
-                  name="arrow-forward-circle"
-                  size={30}
-                  color={page === totalPages ? "gray" : "blue"}
-                />
-              </TouchableOpacity>
-            </View>
+      <View className="p-4 bg-blue-600 rounded-lg mb-4">
+        <View className="flex-row justify-between">
+          <View className="flex-1 mr-2">
+            <Text className="text-white mb-1">Sort By</Text>
+            <TouchableOpacity
+              className="p-3 bg-white rounded-md mb-4"
+              onPress={() => openDropdown("sortBy")}
+            >
+              <Text className="text-black">{sortBy}</Text>
+            </TouchableOpacity>
           </View>
-        </ScrollViewsCustom>
-      </SafeAreaView>
-    </GestureHandlerRootView>
+
+          <View className="flex-1 mr-2">
+            <Text className="text-white mb-1">Order</Text>
+            <TouchableOpacity
+              className="p-3 bg-white rounded-md"
+              onPress={() => openDropdown("order")}
+            >
+              <Text className="text-black">{order}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        <Modal visible={modalVisible} transparent animationType="fade">
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPressOut={() => setModalVisible(false)}
+          >
+            <View style={styles.modalContent}>
+              <FlatList
+                data={currentOptions}
+                keyExtractor={(item) => item}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.optionItem}
+                    onPress={() => handleSelect(item)}
+                  >
+                    <Text>{item}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          </TouchableOpacity>
+        </Modal>
+      </View>
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : (
+        <FlatList
+          key={2}
+          data={products}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }: { item: Product }) => (
+            <ProductGrid products={item} />
+          )}
+          numColumns={2}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          ListFooterComponent={
+            <>
+              {/* Pagination */}
+              <View className="flex-row justify-between items-center mt-4">
+                <TouchableOpacity
+                  onPress={() => handlePagination("prev")}
+                  disabled={page === 1}
+                >
+                  <Ionicons
+                    name="arrow-back-circle"
+                    size={30}
+                    color={page === 1 ? "gray" : "blue"}
+                  />
+                </TouchableOpacity>
+                <Text>
+                  Page {page} of {totalPages}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handlePagination("next")}
+                  disabled={page === totalPages}
+                >
+                  <Ionicons
+                    name="arrow-forward-circle"
+                    size={30}
+                    color={page === totalPages ? "gray" : "blue"}
+                  />
+                </TouchableOpacity>
+              </View>
+            </>
+          }
+        />
+      )}
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { padding: 20 },
+  label: { marginTop: 10, marginBottom: 5 },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.3)",
+  },
+  modalContent: {
+    margin: 40,
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 10,
+    width: 300,
+    marginLeft: "auto",
+    marginRight: "auto",
+  },
+  optionItem: {
+    paddingVertical: 10,
+    borderBottomColor: "#ccc",
+    borderBottomWidth: 1,
+  },
+});
