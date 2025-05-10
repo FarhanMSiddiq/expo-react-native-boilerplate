@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Image, Dimensions } from "react-native";
+import { View, Text, Image, Dimensions, Platform } from "react-native";
 import Carousel from "react-native-reanimated-carousel";
 import { Product } from "../../models/Product";
 
@@ -11,14 +11,14 @@ type Props = {
 
 export default function ProductCarousel({ products }: Props) {
   return (
-    <View className="flex-1 items-center justify-center bg-gray-100 py-8">
+    <View className="flex-1 items-center justify-center bg-gray-100 ">
       <Text className="text-center text-gray-600 mb-4">
-        Select your destination in Indonesia
+        Products Groceries Best Rate
       </Text>
 
       <Carousel
-        width={screenWidth * 0.8}
-        height={screenWidth * 1.1}
+        width={Platform.OS === "web" ? 390 : screenWidth}
+        height={400}
         data={products}
         loop
         autoPlay
@@ -36,7 +36,7 @@ export default function ProductCarousel({ products }: Props) {
                   {item.title}
                 </Text>
                 <Text className="text-center text-gray-600">
-                  Rp {item.price.toLocaleString("id-ID")}
+                  ${item.price.toLocaleString("id-ID")}
                 </Text>
                 <Text className="text-center text-yellow-500">
                   ⭐ {item.rating}
