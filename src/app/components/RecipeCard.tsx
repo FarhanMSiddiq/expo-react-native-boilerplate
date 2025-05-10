@@ -1,14 +1,9 @@
 import React from "react";
 import { View, Text, Image } from "react-native";
+import { Recipe } from "../../models/Recipes";
 
 type Props = {
-  recipe: {
-    id: number;
-    name: string;
-    image: string;
-    rating: number;
-    cuisine: string;
-  };
+  recipe: Recipe;
 };
 
 export default function RecipeCard({ recipe }: Props) {

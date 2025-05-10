@@ -1,18 +1,36 @@
-import { Platform, View, StyleSheet } from "react-native";
+import React from "react";
+import {
+  View,
+  Platform,
+  StyleSheet,
+  SafeAreaView,
+  StatusBar,
+} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import DashboardScreen from "./screens/dashboard/index";
-import ProductsScreen from "./screens/products/index";
-import React, { useState } from "react";
-import HomeScreen from "./screens/dashboard/index";
+
+import DashboardScreen from "../app/screens/dashboard";
+import ProductsScreen from "../app/screens/products";
 
 const Stack = createNativeStackNavigator();
 
-export default function App() {
-  const Wrapper = Platform.OS === "web" ? View : React.Fragment;
+const Wrapper = ({ children }: { children: React.ReactNode }) => {
+  if (Platform.OS === "web") {
+    return <View style={styles.webContainer}>{children}</View>;
+  }
 
+  // Untuk Android dan iOS: pakai SafeAreaView
   return (
-    <Wrapper style={Platform.OS === "web" ? styles.webContainer : null}>
+    <SafeAreaView style={styles.nativeContainer}>
+      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      {children}
+    </SafeAreaView>
+  );
+};
+
+export default function App() {
+  return (
+    <Wrapper>
       <NavigationContainer>
         <Stack.Navigator>
           <Stack.Screen name="Dashboard" component={DashboardScreen} />
@@ -25,12 +43,13 @@ export default function App() {
 
 const styles = StyleSheet.create({
   webContainer: {
-    maxWidth: 390,
-    width: "100%",
-    marginLeft: "auto",
-    marginRight: "auto",
-    height: "100%",
-    borderWidth: 1,
-    borderColor: "#ccc",
+    flex: 1,
+    minHeight: "100%", // Web only
+    backgroundColor: "#fff",
+  },
+  nativeContainer: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
   },
 });

@@ -4,11 +4,12 @@ import {
   getRecipesByTag,
   getAllRecipes,
 } from "../../api/recipesApi";
+import { Recipe } from "../../models/Recipes";
 
 export function useRecipesByTag() {
   const [tags, setTags] = useState<string[]>([]);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [recipes, setRecipes] = useState<any[]>([]);
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loadingRecipes, setLoading] = useState(false);
 
   useEffect(() => {
