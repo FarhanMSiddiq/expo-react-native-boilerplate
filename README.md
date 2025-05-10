@@ -98,7 +98,7 @@ Ikuti langkah-langkah berikut untuk menjalankan project di lokal:
 
 - Recording Demo
   <br/>
-  [🎬 Lihat Demo Video](docs/video/record.mp4)
+  [🎬 Lihat Demo Video](https://youtube.com/shorts/yAgbW-75qwU)
 
 ---
 
