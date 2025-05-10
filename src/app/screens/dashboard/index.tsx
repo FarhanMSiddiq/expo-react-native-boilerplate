@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
-import { FC } from "react";
+import { FC, useState } from "react";
 import useBestProducts from "../../../hooks/products/useBestProducts";
 import ProductCarousel from "../../components/ProductCarousel";
 import {
@@ -17,6 +17,7 @@ import {
 import { useRecipesByTag } from "../../../hooks/recipes/useRecipesByTag";
 import TagButton from "../../components/TagButton";
 import RecipeCard from "../../components/RecipeCard";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 type Props = {
   navigation: any;
@@ -29,13 +30,15 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
   const { tags, selectedTag, recipes, loadingRecipes, fetchRecipes } =
     useRecipesByTag();
 
-  if (loadingBestProducts) return <ActivityIndicator size="large" />;
-  if (errorBestProducts) return <Text>Error</Text>;
+  const [currentTab, setCurrentTab] = useState<"Home" | "Product">("Home");
 
   return (
     <GestureHandlerRootView className="flex-1">
-      <SafeAreaView className="flex-1 bg-gray-100">
+      <SafeAreaView className="flex-1 bg-white pb-10">
         <ScrollView contentContainerClassName="p-5">
+          <Text className="text-center text-gray-600 mb-4">
+            Products Groceries Best Rate
+          </Text>
           <View className="p-2">
             <ProductCarousel products={bestProducts ?? []} />
           </View>
@@ -70,6 +73,46 @@ const HomeScreen: FC<Props> = ({ navigation }) => {
             />
           )}
         </ScrollView>
+        <View className="flex-1 pb-4">
+          <View className="flex-row justify-around items-center py-2 bg-white border-t border-gray-300">
+            <TouchableOpacity
+              onPress={() => setCurrentTab("Home")}
+              className="items-center"
+            >
+              <Ionicons
+                name="home-outline"
+                size={24}
+                color={currentTab === "Home" ? "#007aff" : "gray"}
+              />
+              <Text
+                className={`text-xs ${
+                  currentTab === "Home" ? "text-blue-500" : "text-gray-500"
+                }`}
+              >
+                Home
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("Products");
+              }}
+              className="items-center"
+            >
+              <Ionicons
+                name="cart-outline"
+                size={24}
+                color={currentTab === "Product" ? "#007aff" : "gray"}
+              />
+              <Text
+                className={`text-xs ${
+                  currentTab === "Product" ? "text-blue-500" : "text-gray-500"
+                }`}
+              >
+                Product
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
       </SafeAreaView>
     </GestureHandlerRootView>
   );
