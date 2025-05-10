@@ -1,0 +1,14 @@
+version: "3"
+services:
+  react-native-expo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: react-native-expo
+    ports:
+      - "${EXPO_PORT:-8081}:${EXPO_PORT:-8081}"
+    volumes:
+      - .:/app
+    environment:
+      - NODE_ENV=development
+    tty: true

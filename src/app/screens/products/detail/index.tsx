@@ -56,10 +56,10 @@ export default function ProductDetailScreen() {
           </Text>
           <View className="flex-row justify-between">
             <Text className="text-sm text-gray-600">
-              Stock: {product.stock}
+              Stock: 🛒 {product.stock}
             </Text>
             <Text className="text-sm text-gray-600">
-              Rating: {product.rating}
+              Rating: ⭐ {product.rating}
             </Text>
           </View>
         </View>
