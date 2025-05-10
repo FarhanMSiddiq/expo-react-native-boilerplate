@@ -1,40 +1,69 @@
 import { useState, useEffect } from "react";
-import { getProducts } from "../../api/productsApi";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getProducts, searchProducts } from "../../api/productsApi";
 import { Product } from "../../models/Product";
 
-const useProducts = () => {
-  const [products, setProducts] = useState<Product[] | null>(null);
+export const useProducts = (
+  searchQuery: string = "",
+  page: number = 1,
+  limit: number = 10,
+  sortBy: string = "",
+  order: string = ""
+) => {
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<boolean>(false);
+  const [totalPages, setTotalPages] = useState<number>(1);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchProducts = async () => {
       setLoading(true);
+      setError(false);
       try {
-        const cachedProducts = await AsyncStorage.getItem("products");
-        if (cachedProducts) {
-          setProducts(JSON.parse(cachedProducts));
+        let fetchedProducts;
+        if (searchQuery) {
+          fetchedProducts = await searchProducts(searchQuery, sortBy, order);
         } else {
-          const fetchedProducts = await getProducts();
-          setProducts(fetchedProducts);
-          await AsyncStorage.setItem(
-            "products",
-            JSON.stringify(fetchedProducts)
-          );
+          const skip = (page - 1) * limit;
+          fetchedProducts = await getProducts(skip, limit, sortBy, order);
         }
-      } catch (err) {
-        console.error(err);
-        setError("Failed to fetch products");
+
+        setProducts(fetchedProducts.products);
+        setTotalPages(Math.ceil(fetchedProducts.total / limit));
+      } catch (e) {
+        setError(true);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchProducts();
+  }, [searchQuery, page, limit]);
 
-  return { products, loading, error };
+  const refetchProducts = async (
+    query: string,
+    page: number,
+    sortByNew: string = "",
+    orderNew: string = ""
+  ) => {
+    setLoading(true);
+    setError(false);
+    try {
+      let fetchedProducts;
+      if (query) {
+        fetchedProducts = await searchProducts(query, sortByNew, orderNew);
+      } else {
+        const skip = (page - 1) * limit;
+        fetchedProducts = await getProducts(skip, limit, sortByNew, orderNew);
+      }
+
+      setProducts(fetchedProducts.products);
+      setTotalPages(Math.ceil(fetchedProducts.total / limit));
+    } catch (e) {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return { products, loading, error, totalPages, refetchProducts };
 };
-
-export default useProducts;

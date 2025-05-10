@@ -11,6 +11,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import DashboardScreen from "../app/screens/dashboard";
 import ProductsScreen from "../app/screens/products";
+import ProductDetailScreen from "./screens/products/detail";
 
 const Stack = createNativeStackNavigator();
 
@@ -35,6 +36,7 @@ export default function App() {
         <Stack.Navigator>
           <Stack.Screen name="Dashboard" component={DashboardScreen} />
           <Stack.Screen name="Products" component={ProductsScreen} />
+          <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </Wrapper>
