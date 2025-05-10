@@ -50,6 +50,6 @@ const styles = StyleSheet.create({
   nativeContainer: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 0,
+    paddingTop: 0,
   },
 });

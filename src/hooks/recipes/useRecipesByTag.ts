@@ -5,8 +5,9 @@ import {
   getAllRecipes,
 } from "../../api/recipesApi";
 import { Recipe } from "../../models/Recipes";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export function useRecipesByTag() {
+const useRecipesByTag = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -15,11 +16,26 @@ export function useRecipesByTag() {
   useEffect(() => {
     const init = async () => {
       try {
-        const tags = await getRecipeTags();
-        setTags(tags);
+        const cachedTags = await AsyncStorage.getItem("recipe_tags");
+        if (cachedTags) {
+          setTags(JSON.parse(cachedTags));
+        } else {
+          const fetchedTags = await getRecipeTags();
+          setTags(fetchedTags);
+          await AsyncStorage.setItem(
+            "recipe_tags",
+            JSON.stringify(fetchedTags)
+          );
+        }
 
-        const allRecipes = await getAllRecipes(); // ✅ ambil resep awal
-        setRecipes(allRecipes);
+        const cachedAllRecipes = await AsyncStorage.getItem("all_recipes");
+        if (cachedAllRecipes) {
+          setRecipes(JSON.parse(cachedAllRecipes));
+        } else {
+          const allRecipes = await getAllRecipes();
+          setRecipes(allRecipes);
+          await AsyncStorage.setItem("all_recipes", JSON.stringify(allRecipes));
+        }
       } catch (err) {
         console.error("Failed to fetch initial data", err);
       }
@@ -32,8 +48,15 @@ export function useRecipesByTag() {
     setLoading(true);
     setSelectedTag(tag);
     try {
-      const data = await getRecipesByTag(tag);
-      setRecipes(data);
+      const cacheKey = `recipes_by_tag_${tag}`;
+      const cached = await AsyncStorage.getItem(cacheKey);
+      if (cached) {
+        setRecipes(JSON.parse(cached));
+      } else {
+        const data = await getRecipesByTag(tag);
+        setRecipes(data);
+        await AsyncStorage.setItem(cacheKey, JSON.stringify(data));
+      }
     } catch (err) {
       console.error("Failed to fetch recipes", err);
     } finally {
@@ -48,4 +71,6 @@ export function useRecipesByTag() {
     loadingRecipes,
     fetchRecipes,
   };
-}
+};
+
+export default useRecipesByTag;

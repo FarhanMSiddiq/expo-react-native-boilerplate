@@ -12,7 +12,6 @@ const useBestProducts = (category: string, params: string | null = null) => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Cek apakah data ada di AsyncStorage
         const cachedProducts = await AsyncStorage.getItem("best-products");
         if (cachedProducts) {
           setProducts(JSON.parse(cachedProducts));

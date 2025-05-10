@@ -12,7 +12,6 @@ const useProducts = () => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Cek apakah data ada di AsyncStorage
         const cachedProducts = await AsyncStorage.getItem("products");
         if (cachedProducts) {
           setProducts(JSON.parse(cachedProducts));

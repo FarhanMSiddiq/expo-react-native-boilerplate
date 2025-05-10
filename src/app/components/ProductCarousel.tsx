@@ -11,7 +11,7 @@ type Props = {
 
 export default function ProductCarousel({ products }: Props) {
   return (
-    <View className="flex-1 items-center justify-center bg-white ">
+    <View className="flex-1 items-center justify-center">
       <Carousel
         width={Platform.OS === "web" ? 390 : screenWidth}
         height={400}
@@ -21,7 +21,7 @@ export default function ProductCarousel({ products }: Props) {
         scrollAnimationDuration={1000}
         renderItem={({ item }) => (
           <View className="items-center">
-            <View className="rounded-full overflow-hidden w-72 h-96 shadow-lg bg-white justify-end">
+            <View className="rounded-full overflow-hidden w-72 h-96 shadow-lg bg-white justify-end border-[10px] border-blue-500">
               <Image
                 source={{ uri: item.images[0] }}
                 className="w-full h-full absolute"

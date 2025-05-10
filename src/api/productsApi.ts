@@ -1,9 +1,4 @@
-import axios from "axios";
-import { API_URL } from "@env";
-
-const api = axios.create({
-  baseURL: API_URL,
-});
+import api from "./service/api";
 
 export const getProducts = async () => {
   try {
